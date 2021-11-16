@@ -1,25 +1,26 @@
 package com.texoit.api.classes;
 
+import java.util.List;
 import java.util.Objects;
 
 public class Intervalo {
 
-	public Ganhador min;
-	public Ganhador max;
+	public List<Ganhador> min;
+	public List<Ganhador> max;
 
-	public Ganhador getMin() {
+	public List<Ganhador> getMin() {
 		return min;
 	}
 
-	public void setMin(Ganhador min) {
+	public void setMin(List<Ganhador> min) {
 		this.min = min;
 	}
 
-	public Ganhador getMax() {
+	public List<Ganhador> getMax() {
 		return max;
 	}
 
-	public void setMax(Ganhador max) {
+	public void setMax(List<Ganhador> max) {
 		this.max = max;
 	}
 

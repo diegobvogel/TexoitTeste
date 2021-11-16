@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import com.texoit.api.classes.Ganhador;
 import com.texoit.api.classes.Intervalo;
@@ -64,45 +65,75 @@ public class Util {
 	public static Intervalo getProdutoresVencedores(List<Premiacao> vencedores) {
 
 		List<Ganhador> possiveisGanhadores = new ArrayList<Ganhador>();
+		Premiacao lastVencedor = new Premiacao();
 		Intervalo intervalo = new Intervalo();
 
 		int i = 0;
 		int min;
 		int max;
 		List<Integer> qtdAnos = new ArrayList<Integer>();
+		List<Ganhador> ganhadorListMin = new ArrayList<>();
+		List<Ganhador> ganhadorListMax = new ArrayList<>();
 
 		try {
+			// verificar qtde 'min' e 'max' de anos entre as vitórias
 			for (i = 0; i < vencedores.size(); i++) {
-				if ((i % 2) == 0) {
-					qtdAnos.add(vencedores.get(i + 1).getYear() - vencedores.get(i).getYear());
-
-					Ganhador ganhador = new Ganhador();
-					ganhador.setProducer(vencedores.get(i).getProducers());
-					ganhador.setInterval(vencedores.get(i + 1).getYear() - vencedores.get(i).getYear());
-					ganhador.setPreviousWin(vencedores.get(i).getYear());
-					ganhador.setFollowingWin(vencedores.get(i + 1).getYear());
-
-					possiveisGanhadores.add(ganhador);
+				if (vencedores.get(i).getProducers() == lastVencedor.getProducers()) {
+					qtdAnos.add(vencedores.get(i).getYear() - lastVencedor.getYear());
 				}
+				lastVencedor = vencedores.get(i);
 			}
-
+			
+			lastVencedor = new Premiacao();
 			min = Collections.min(qtdAnos);
 			max = Collections.max(qtdAnos);
+			
+			// adicionar ganhadores que tem o itervalo igual a 'min' ou 'max'
+			for (i = 0; i < vencedores.size(); i++) {
+				if (vencedores.get(i).getProducers() == lastVencedor.getProducers()) { // só entrar se os dois forem iguais
+					if ((vencedores.get(i).getYear() - lastVencedor.getYear() == min) 
+					||  (vencedores.get(i).getYear() - lastVencedor.getYear() == max)) { // só entrar se o intervalo for igual a 'min' ou 'max'
+						if (!ganhadorJaExiste(possiveisGanhadores, vencedores.get(i).getProducers())) { // verificar se o ganhador já está adicionado (para não add nos casos que o intervalo for igual a algum anterior)
+							Ganhador ganhador = new Ganhador();
+							ganhador.setProducer(vencedores.get(i).getProducers());
+							ganhador.setInterval(vencedores.get(i).getYear() - vencedores.get(i-1).getYear());
+							ganhador.setPreviousWin(vencedores.get(i-1).getYear());
+							ganhador.setFollowingWin(vencedores.get(i).getYear());
 
+							possiveisGanhadores.add(ganhador);
+						}
+					}
+				}
+				lastVencedor = vencedores.get(i);
+			}
+			
+			// setar os possiveis ganhadores no 'min' e 'max'
 			for (Ganhador ganhador : possiveisGanhadores) {
 				if (ganhador.getInterval() == min) {
-					intervalo.setMin(ganhador);
+					ganhadorListMin.add(ganhador);
+					intervalo.setMin(ganhadorListMin);
 				}
 				if (ganhador.getInterval() == max) {
-					intervalo.setMax(ganhador);
+					ganhadorListMax.add(ganhador);
+					intervalo.setMax(ganhadorListMax);
 				}
 			}
-
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		return intervalo;
 	}
-
+	
+	public static boolean ganhadorJaExiste(List<Ganhador> lista, String nome) {
+		boolean retorno = false;
+		for (Ganhador ganhador : lista) {
+			if (ganhador.getProducer() == nome) {
+				retorno = true;
+			}
+		}
+		return retorno;
+	}
+	
 }
